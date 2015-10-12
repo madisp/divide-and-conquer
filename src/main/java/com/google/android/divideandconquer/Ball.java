@@ -16,6 +16,9 @@
 
 package com.google.android.divideandconquer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * A ball has a current location, a trajectory angle, a speed in pixels per
  * second, and a last update time.  It is capable of updating itself based on
@@ -23,7 +26,7 @@ package com.google.android.divideandconquer;
  *
  * It also knows its boundaries, and will 'bounce' off them when it reaches them.
  */
-public class Ball extends Shape2d {
+public class Ball extends Shape2d implements Parcelable {
 
     private long mLastUpdate;
     private float mX;
@@ -45,6 +48,27 @@ public class Ball extends Shape2d {
         mAngle = angle;
         mRadiusPixels = radiusPixels;
     }
+
+    protected Ball(Parcel in) {
+        mLastUpdate = in.readLong();
+        mX = in.readFloat();
+        mY = in.readFloat();
+        mAngle = in.readDouble();
+        mPixelsPerSecond = in.readFloat();
+        mRadiusPixels = in.readFloat();
+    }
+
+    public static final Creator<Ball> CREATOR = new Creator<Ball>() {
+        @Override
+        public Ball createFromParcel(Parcel in) {
+            return new Ball(in);
+        }
+
+        @Override
+        public Ball[] newArray(int size) {
+            return new Ball[size];
+        }
+    };
 
     public float getX() {
         return mX;
@@ -241,6 +265,25 @@ public class Ball extends Shape2d {
         return String.format(
             "Ball(x=%f, y=%f, angle=%f)",
                 mX, mY, Math.toDegrees(mAngle));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mLastUpdate);
+        dest.writeFloat(mX);
+        dest.writeFloat(mY);
+        dest.writeDouble(mAngle);
+        dest.writeFloat(mPixelsPerSecond);
+        dest.writeFloat(mRadiusPixels);
+    }
+
+    public void reset(long now) {
+        mLastUpdate = now;
     }
 
     /**

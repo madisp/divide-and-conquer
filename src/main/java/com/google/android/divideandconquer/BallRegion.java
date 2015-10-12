@@ -15,6 +15,9 @@
  */
 package com.google.android.divideandconquer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +30,7 @@ import java.lang.ref.WeakReference;
  * between the balls and the moving line, and when the line is complete, handles
  * splitting off a new region.
  */
-public class BallRegion extends Shape2d {
+public class BallRegion extends Shape2d implements Parcelable {
 
     private float mLeft;
     private float mRight;
@@ -73,6 +76,33 @@ public class BallRegion extends Shape2d {
         }
         checkShrinkToFit();
     }
+
+    protected BallRegion(Parcel in) {
+        mLeft = in.readFloat();
+        mRight = in.readFloat();
+        mTop = in.readFloat();
+        mBottom = in.readFloat();
+        mBalls = in.createTypedArrayList(Ball.CREATOR);
+        mAnimatingLine = in.readParcelable(AnimatingLine.class.getClassLoader());
+        mShrinkingToFit = in.readByte() != 0;
+        mLastUpdate = in.readLong();
+        mDoneShrinking = in.readByte() != 0;
+        for (Ball b : mBalls) {
+            b.setRegion(this);
+        }
+    }
+
+    public static final Creator<BallRegion> CREATOR = new Creator<BallRegion>() {
+        @Override
+        public BallRegion createFromParcel(Parcel in) {
+            return new BallRegion(in);
+        }
+
+        @Override
+        public BallRegion[] newArray(int size) {
+            return new BallRegion[size];
+        }
+    };
 
     public void setCallBack(BallEngine.BallEventCallBack callBack) {
         this.mCallBack = new WeakReference<BallEngine.BallEventCallBack>(callBack);
@@ -301,4 +331,28 @@ public class BallRegion extends Shape2d {
         }
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeFloat(mLeft);
+        dest.writeFloat(mRight);
+        dest.writeFloat(mTop);
+        dest.writeFloat(mBottom);
+        dest.writeTypedList(mBalls);
+        dest.writeParcelable(mAnimatingLine, flags);
+        dest.writeByte((byte) (mShrinkingToFit ? 1 : 0));
+        dest.writeLong(mLastUpdate);
+        dest.writeByte((byte) (mDoneShrinking ? 1 : 0));
+    }
+
+    public void reset(long now) {
+        mLastUpdate = now;
+        for (Ball b : mBalls) {
+            b.reset(now);
+        }
+    }
 }

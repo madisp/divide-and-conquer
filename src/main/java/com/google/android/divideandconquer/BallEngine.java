@@ -16,8 +16,6 @@
 package com.google.android.divideandconquer;
 
 import android.util.Log;
-import android.content.Context;
-import android.widget.Toast;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -211,5 +209,23 @@ public class BallEngine {
         mNewRegions.clear();
 
         return regionChange;
+    }
+
+    public void saveState(GameState state) {
+        state.newRegions = mNewRegions;
+        state.regions = mRegions;
+    }
+
+    public void reset(long now, GameState state) {
+        mNewRegions = state.newRegions;
+        mRegions = state.regions;
+        for (BallRegion region : mNewRegions) {
+            region.setCallBack(mCallBack);
+            region.reset(now);
+        }
+        for (BallRegion region : mRegions) {
+            region.setCallBack(mCallBack);
+            region.reset(now);
+        }
     }
 }

@@ -15,6 +15,9 @@
  */
 package com.google.android.divideandconquer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * To specify a dividing line, a user hits the screen and drags in a
  * certain direction.  Once the line has been drawn long enough and mostly
@@ -25,7 +28,16 @@ package com.google.android.divideandconquer;
  * a dividing line, they can just drag their finger back to where they first
  * touched and let go, cancelling.
  */
-public class DirectionPoint {
+public class DirectionPoint implements Parcelable {
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeFloat(mX);
+        dest.writeFloat(mY);
+        dest.writeFloat(endLineX);
+        dest.writeFloat(endLineY);
+    }
+
     enum AmbiguousDirection {
         Vertical,
         Horizonal,
@@ -43,6 +55,13 @@ public class DirectionPoint {
         mY = y;
         endLineX = x;
         endLineY = y;
+    }
+
+    protected DirectionPoint(Parcel in) {
+        mX = in.readFloat();
+        mY = in.readFloat();
+        endLineX = in.readFloat();
+        endLineY = in.readFloat();
     }
 
     public void updateEndPoint(float x, float y) {
@@ -78,5 +97,22 @@ public class DirectionPoint {
             return AmbiguousDirection.Vertical;
         }
         return AmbiguousDirection.Unknown;
+    }
+
+    public static final Creator<DirectionPoint> CREATOR = new Creator<DirectionPoint>() {
+        @Override
+        public DirectionPoint createFromParcel(Parcel in) {
+            return new DirectionPoint(in);
+        }
+
+        @Override
+        public DirectionPoint[] newArray(int size) {
+            return new DirectionPoint[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

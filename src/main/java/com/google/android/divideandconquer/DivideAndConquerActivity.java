@@ -54,9 +54,7 @@ public class DivideAndConquerActivity extends Activity
     
     private DivideAndConquerView mBallsView;
 
-    private static final int WELCOME_DIALOG = 20;
     private static final int GAME_OVER_DIALOG = 21;
-    private WelcomeDialog mWelcomeDialog;
     private GameOverDialog mGameOverDialog;
 
     private TextView mLivesLeft;
@@ -67,6 +65,8 @@ public class DivideAndConquerActivity extends Activity
     private int mNumLivesStart = 5;
 
     private Toast mCurrentToast;
+
+    private GameState state = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,25 +84,48 @@ public class DivideAndConquerActivity extends Activity
 
         // we'll vibrate when the ball hits the moving line
         mVibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+        if (savedInstanceState != null) {
+            state = savedInstanceState.getParcelable("game_state");
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        GameState state = new GameState();
+        mBallsView.saveState(state);
+        state.numBalls = mNumBalls;
+        state.numLives = mNumLives;
+        state.numLivesStart = mNumLivesStart;
+        outState.putParcelable("game_state", state);
     }
 
     /** {@inheritDoc} */
     public void onEngineReady(BallEngine ballEngine) {
-        // display 10 balls bouncing around for visual effect
-        ballEngine.reset(SystemClock.elapsedRealtime(), 10);
-        mBallsView.setMode(DivideAndConquerView.Mode.Bouncing);
-
-        // show the welcome dialog
-        showDialog(WELCOME_DIALOG);
+        if (state == null) {
+            mNumBalls = NEW_GAME_NUM_BALLS;
+            mNumLives = mNumLivesStart;
+            updatePercentDisplay(0);
+            updateLivesDisplay(mNumLives);
+            updateLevelDisplay(mNumBalls);
+            mBallsView.getEngine().reset(SystemClock.elapsedRealtime(), mNumBalls);
+            mBallsView.setMode(DivideAndConquerView.Mode.Bouncing);
+        }
+        else {
+            mNumBalls = state.numBalls;
+            mNumLives = state.numLives;
+            mNumLivesStart = state.numLivesStart;
+            updateLivesDisplay(mNumLives);
+            updateLevelDisplay(mNumBalls);
+            mBallsView.reset(SystemClock.elapsedRealtime(), state);
+        }
     }
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == WELCOME_DIALOG) {
-            mWelcomeDialog = new WelcomeDialog(this, this);
-            mWelcomeDialog.setOnCancelListener(this);
-            return mWelcomeDialog;
-        } else if (id == GAME_OVER_DIALOG) {
+        if (id == GAME_OVER_DIALOG) {
             mGameOverDialog = new GameOverDialog(this, this);
             mGameOverDialog.setOnCancelListener(this);
             return mGameOverDialog;
@@ -113,7 +136,9 @@ public class DivideAndConquerActivity extends Activity
     @Override
     protected void onPause() {
         super.onPause();
-        mBallsView.setMode(DivideAndConquerView.Mode.PausedByUser);
+        if (!isChangingConfigurations()) {
+            mBallsView.setMode(DivideAndConquerView.Mode.PausedByUser);
+        }
     }
 
     @Override
@@ -280,6 +305,11 @@ public class DivideAndConquerActivity extends Activity
         mCurrentToast.show();
     }
 
+    @Override
+    public void onNewGame() {
+
+    }
+
     private void cancelToasts() {
         if (mCurrentToast != null) {
             mCurrentToast.cancel();
@@ -295,17 +325,6 @@ public class DivideAndConquerActivity extends Activity
         final int prettyPercent = (int) (amountFilled *100);
         mPercentContained.setText(
                 getString(R.string.percent_contained, prettyPercent));
-    }
-
-    /** {@inheritDoc} */
-    public void onNewGame() {
-        mNumBalls = NEW_GAME_NUM_BALLS;
-        mNumLives = mNumLivesStart;
-        updatePercentDisplay(0);
-        updateLivesDisplay(mNumLives);
-        updateLevelDisplay(mNumBalls);
-        mBallsView.getEngine().reset(SystemClock.elapsedRealtime(), mNumBalls);
-        mBallsView.setMode(DivideAndConquerView.Mode.Bouncing);
     }
 
     /**
@@ -327,7 +346,7 @@ public class DivideAndConquerActivity extends Activity
 
     /** {@inheritDoc} */
     public void onCancel(DialogInterface dialog) {
-        if (dialog == mWelcomeDialog || dialog == mGameOverDialog) {
+        if (dialog == mGameOverDialog) {
             // user hit back, they're done
             finish();
         }

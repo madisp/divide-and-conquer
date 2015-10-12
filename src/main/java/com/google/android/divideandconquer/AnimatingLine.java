@@ -16,11 +16,14 @@
 
 package com.google.android.divideandconquer;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Keeps the state for the line that extends in two directions until it hits its boundaries.  This is triggered
  * by the user gesture in a horizontal or vertical direction.
  */
-public class AnimatingLine extends Shape2d {
+public class AnimatingLine extends Shape2d implements Parcelable {
 
     private Direction mDirection;
 
@@ -57,6 +60,17 @@ public class AnimatingLine extends Shape2d {
         mStart = mEnd = start;
         mMin = min;
         mMax = max;
+    }
+
+    protected AnimatingLine(Parcel in) {
+        mDirection = Direction.valueOf(in.readString());
+        mPerpAxisOffset = in.readFloat();
+        mStart = in.readFloat();
+        mEnd = in.readFloat();
+        mMin = in.readFloat();
+        mMax = in.readFloat();
+        mLastUpdate = in.readLong();
+        mPixelsPerSecond = in.readFloat();
     }
 
     public Direction getDirection() {
@@ -124,4 +138,33 @@ public class AnimatingLine extends Shape2d {
     public void setNow(long now) {
         mLastUpdate = now;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mDirection.toString());
+        dest.writeFloat(mPerpAxisOffset);
+        dest.writeFloat(mStart);
+        dest.writeFloat(mEnd);
+        dest.writeFloat(mMin);
+        dest.writeFloat(mMax);
+        dest.writeLong(mLastUpdate);
+        dest.writeFloat(mPixelsPerSecond);
+    }
+
+    public static final Creator<AnimatingLine> CREATOR = new Creator<AnimatingLine>() {
+        @Override
+        public AnimatingLine createFromParcel(Parcel in) {
+            return new AnimatingLine(in);
+        }
+
+        @Override
+        public AnimatingLine[] newArray(int size) {
+            return new AnimatingLine[size];
+        }
+    };
 }

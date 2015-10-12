@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.divideandconquer"
-    android:versionName="1.4"
-    android:versionCode="14">
+    package="com.google.android.divideandconquer">
 
     <uses-permission android:name="android.permission.VIBRATE"/>
 
@@ -12,7 +10,12 @@
                 android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
                 android:screenOrientation="portrait"
                 android:configChanges="orientation|keyboardHidden"
-                >
+                />
+
+        <activity android:name=".WelcomeActivity"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

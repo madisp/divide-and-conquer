@@ -20,6 +20,7 @@ import android.content.res.Resources;
 import android.graphics.*;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Debug;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -498,5 +499,17 @@ public class DivideAndConquerView extends View implements BallEngine.BallEventCa
                         mPaint);
                 break;
         }
+    }
+
+    public void saveState(GameState state) {
+        state.mode = mMode;
+        state.directionPoint = mDirectionPoint;
+        mEngine.saveState(state);
+    }
+
+    public void reset(long now, GameState state) {
+        mMode = state.mode;
+        mDirectionPoint = state.directionPoint;
+        mEngine.reset(now, state);
     }
 }

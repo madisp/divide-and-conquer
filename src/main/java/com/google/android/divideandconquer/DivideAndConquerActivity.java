@@ -40,9 +40,7 @@ import java.util.Stack;
  * hits a moving line and there is only one life left.
  */
 public class DivideAndConquerActivity extends Activity
-        implements DivideAndConquerView.BallEngineCallBack,
-        NewGameCallback,
-        DialogInterface.OnCancelListener {
+        implements DivideAndConquerView.BallEngineCallBack {
 
     private static final int NEW_GAME_NUM_BALLS = 1;
     private static final double LEVEL_UP_THRESHOLD = 0.8;
@@ -54,9 +52,6 @@ public class DivideAndConquerActivity extends Activity
     
     private DivideAndConquerView mBallsView;
 
-    private static final int GAME_OVER_DIALOG = 21;
-    private GameOverDialog mGameOverDialog;
-
     private TextView mLivesLeft;
     private TextView mPercentContained;
     private int mNumLives;
@@ -67,6 +62,7 @@ public class DivideAndConquerActivity extends Activity
     private Toast mCurrentToast;
 
     private GameState state = null;
+    private boolean mNewGame = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +89,11 @@ public class DivideAndConquerActivity extends Activity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        if (mNewGame) {
+            // don't store state, we're going to get a new game anyway
+            return;
+        }
 
         GameState state = new GameState();
         mBallsView.saveState(state);
@@ -124,16 +125,6 @@ public class DivideAndConquerActivity extends Activity
     }
 
     @Override
-    protected Dialog onCreateDialog(int id) {
-        if (id == GAME_OVER_DIALOG) {
-            mGameOverDialog = new GameOverDialog(this, this);
-            mGameOverDialog.setOnCancelListener(this);
-            return mGameOverDialog;
-        }
-        return null;
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         if (!isChangingConfigurations()) {
@@ -151,78 +142,9 @@ public class DivideAndConquerActivity extends Activity
         mNumLivesStart = Preferences.getCurrentDifficulty(this).getLivesToStart();
     }
 
-    private static final int MENU_NEW_GAME = Menu.FIRST;
-    private static final int MENU_SETTINGS = Menu.FIRST + 1;
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        menu.add(0, MENU_NEW_GAME, MENU_NEW_GAME, "New Game");
-        menu.add(0, MENU_SETTINGS, MENU_SETTINGS, "Settings");
-
-        return true;        
-    }
-
-    /**
-     * We pause the game while the menu is open; this remembers what it was
-     * so we can restore when the menu closes
-     */
-    Stack<DivideAndConquerView.Mode> mRestoreMode = new Stack<DivideAndConquerView.Mode>();
-
-    @Override
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        saveMode();
-        mBallsView.setMode(DivideAndConquerView.Mode.Paused);
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
-
-        switch (item.getItemId()) {
-            case MENU_NEW_GAME:
-                cancelToasts();
-                onNewGame();
-                break;
-            case MENU_SETTINGS:
-                final Intent intent = new Intent();
-                intent.setClass(this, Preferences.class);
-                startActivity(intent);
-                break;
-        }
-
-        mRestoreMode.pop(); // don't want to restore when an action was taken
-
-        return true;
-    }
-
-    @Override
-    public void onOptionsMenuClosed(Menu menu) {
-        super.onOptionsMenuClosed(menu);
-        restoreMode();
-    }
-
-
-    private void saveMode() {
-        // don't want to restore to a state where user can't resume game.
-        final DivideAndConquerView.Mode mode = mBallsView.getMode();
-        final DivideAndConquerView.Mode toRestore = (mode == DivideAndConquerView.Mode.Paused) ?
-                DivideAndConquerView.Mode.PausedByUser : mode;
-        mRestoreMode.push(toRestore);
-    }
-
-    private void restoreMode() {
-        if (!mRestoreMode.isEmpty()) {
-            mBallsView.setMode(mRestoreMode.pop());
-        }
-    }
-
     /** {@inheritDoc} */
     public void onBallHitsMovingLine(final BallEngine ballEngine, float x, float y) {
         if (--mNumLives == 0) {
-            saveMode();
             mBallsView.setMode(DivideAndConquerView.Mode.Paused);
 
             // vibrate three times
@@ -233,7 +155,7 @@ public class DivideAndConquerActivity extends Activity
                                    50l, COLLISION_VIBRATE_MILLIS},
                         -1);
             }
-            showDialog(GAME_OVER_DIALOG);
+            startActivityForResult(new Intent(this, GameOverActivity.class), R.id.gameOverRequest);
         } else {
             if (mVibrateOn) {
                 mVibrator.vibrate(COLLISION_VIBRATE_MILLIS);
@@ -305,11 +227,6 @@ public class DivideAndConquerActivity extends Activity
         mCurrentToast.show();
     }
 
-    @Override
-    public void onNewGame() {
-
-    }
-
     private void cancelToasts() {
         if (mCurrentToast != null) {
             mCurrentToast.cancel();
@@ -344,11 +261,17 @@ public class DivideAndConquerActivity extends Activity
         mLivesLeft.setText(text);
     }
 
-    /** {@inheritDoc} */
-    public void onCancel(DialogInterface dialog) {
-        if (dialog == mGameOverDialog) {
-            // user hit back, they're done
-            finish();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == R.id.gameOverRequest) {
+            if (resultCode == RESULT_OK) {
+                mNewGame = true;
+                recreate();
+            } else {
+                finish();
+            }
+            return;
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

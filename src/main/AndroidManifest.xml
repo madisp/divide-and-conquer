@@ -22,6 +22,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".GameOverActivity"
+            android:theme="@android:style/Theme.Translucent"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"
+            />
+
         <activity android:name=".Preferences"/>
     </application>
 </manifest> 

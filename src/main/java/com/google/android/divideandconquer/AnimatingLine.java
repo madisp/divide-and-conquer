@@ -38,7 +38,7 @@ public class AnimatingLine extends Shape2d implements Parcelable {
     float mMax;
 
     private long mLastUpdate = 0;
-    private float mPixelsPerSecond = 101.0f;
+    private float mPixelsPerSecond = 1010.0f;
 
     /**
      * @param direction The direction of the line

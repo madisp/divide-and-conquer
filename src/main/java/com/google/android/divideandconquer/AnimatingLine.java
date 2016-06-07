@@ -38,7 +38,6 @@ public class AnimatingLine extends Shape2d implements Parcelable {
     float mMax;
 
     private long mLastUpdate = 0;
-    private float mPixelsPerSecond = 101.0f;
 
     /**
      * @param direction The direction of the line
@@ -70,7 +69,6 @@ public class AnimatingLine extends Shape2d implements Parcelable {
         mMin = in.readFloat();
         mMax = in.readFloat();
         mLastUpdate = in.readLong();
-        mPixelsPerSecond = in.readFloat();
     }
 
     public Direction getDirection() {
@@ -123,7 +121,7 @@ public class AnimatingLine extends Shape2d implements Parcelable {
      */
     public boolean update(long time) {
         if (time == mLastUpdate) return false;
-        float delta = (time - mLastUpdate) * mPixelsPerSecond;
+        float delta = (time - mLastUpdate) * Constants.LINE_SPEED;
         delta = delta / 1000;
         mLastUpdate = time;
         mStart -= delta;
@@ -153,7 +151,6 @@ public class AnimatingLine extends Shape2d implements Parcelable {
         dest.writeFloat(mMin);
         dest.writeFloat(mMax);
         dest.writeLong(mLastUpdate);
-        dest.writeFloat(mPixelsPerSecond);
     }
 
     public static final Creator<AnimatingLine> CREATOR = new Creator<AnimatingLine>() {

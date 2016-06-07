@@ -48,7 +48,7 @@ public class WelcomeActivity extends Activity implements NewGameCallback, Divide
     @Override
     public void onEngineReady(BallEngine ballEngine) {
         // display 10 balls bouncing around for visual effect
-        ballEngine.reset(SystemClock.elapsedRealtime(), 10);
+        ballEngine.reset(SystemClock.elapsedRealtime(), Constants.MAIN_MENU_BALLS_NUM);
         mBallsView.setMode(DivideAndConquerView.Mode.Bouncing);
     }
 

@@ -41,8 +41,6 @@ public class DivideAndConquerView extends View implements BallEngine.BallEventCa
     // this needs to match size of ball drawable
     static final float BALL_RADIUS = 5f;
 
-    static final float BALL_SPEED = 80f;
-
     // if true, will profile the drawing code during each animating line and export
     // the result to a file named 'BallsDrawing.trace' on the sd card
     // this file can be pulled off and profiled with traceview
@@ -184,7 +182,6 @@ public class DivideAndConquerView extends View implements BallEngine.BallEventCa
         mEngine = new BallEngine(
                 BORDER_WIDTH, getWidth() - BORDER_WIDTH,
                 BORDER_WIDTH, getHeight() - BORDER_WIDTH,
-                BALL_SPEED,
                 BALL_RADIUS);
         mEngine.setCallBack(this);
         mCallback.onEngineReady(mEngine);

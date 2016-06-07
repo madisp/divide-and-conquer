@@ -33,16 +33,14 @@ public class Ball extends Shape2d implements Parcelable {
     private float mY;
     private double mAngle;
 
-    private final float mPixelsPerSecond;
     private final float mRadiusPixels;
 
     private Shape2d mRegion;
 
 
-    private Ball(long now, float pixelsPerSecond, float x, float y,
+    private Ball(long now, float x, float y,
             double angle, float radiusPixels) {
         mLastUpdate = now;
-        mPixelsPerSecond = pixelsPerSecond;
         mX = x;
         mY = y;
         mAngle = angle;
@@ -54,7 +52,6 @@ public class Ball extends Shape2d implements Parcelable {
         mX = in.readFloat();
         mY = in.readFloat();
         mAngle = in.readDouble();
-        mPixelsPerSecond = in.readFloat();
         mRadiusPixels = in.readFloat();
     }
 
@@ -178,7 +175,7 @@ public class Ball extends Shape2d implements Parcelable {
             bounceOffBottom();
         }
 
-        float delta = (now - mLastUpdate) * mPixelsPerSecond;
+        float delta = (now - mLastUpdate) * Constants.BALL_SPEED;
         delta = delta / 1000f;
 
         mX += (delta * Math.cos(mAngle));
@@ -278,7 +275,6 @@ public class Ball extends Shape2d implements Parcelable {
         dest.writeFloat(mX);
         dest.writeFloat(mY);
         dest.writeDouble(mAngle);
-        dest.writeFloat(mPixelsPerSecond);
         dest.writeFloat(mRadiusPixels);
     }
 
@@ -296,8 +292,6 @@ public class Ball extends Shape2d implements Parcelable {
         private float mY = -1;
         private double mAngle = -1;
         private float mRadiusPixels = -1;
-
-        private float mPixelsPerSecond = 45f;
 
         public Ball create() {
             if (mNow < 0) {
@@ -318,16 +312,11 @@ public class Ball extends Shape2d implements Parcelable {
             if (mRadiusPixels <= 0) {
                 throw new IllegalStateException("radius must be set");
             }
-            return new Ball(mNow, mPixelsPerSecond, mX, mY, mAngle, mRadiusPixels);
+            return new Ball(mNow, mX, mY, mAngle, mRadiusPixels);
         }
 
         public Builder setNow(long now) {
             mNow = now;
-            return this;
-        }
-
-        public Builder setPixelsPerSecond(float pixelsPerSecond) {
-            mPixelsPerSecond = pixelsPerSecond;
             return this;
         }
 

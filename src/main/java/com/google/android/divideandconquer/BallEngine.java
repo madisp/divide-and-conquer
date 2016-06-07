@@ -44,7 +44,6 @@ public class BallEngine {
     private final float mMinY;
     private final float mMaxY;
 
-    private float mBallSpeed;
     private float mBallRadius;
 
     private BallEventCallBack mCallBack;
@@ -59,13 +58,11 @@ public class BallEngine {
     public BallEngine(float minX, float maxX,
             float minY,
             float maxY,
-            float ballSpeed,
             float ballRadius) {
         mMinX = minX;
         mMaxX = maxX;
         mMinY = minY;
         mMaxY = maxY;
-        mBallSpeed = ballSpeed;
         mBallRadius = ballRadius;
     }
 
@@ -98,7 +95,6 @@ public class BallEngine {
         for (int i = 0; i < numBalls; i++) {
             Ball ball = new Ball.Builder()
                     .setNow(now)
-                    .setPixelsPerSecond(mBallSpeed)
                     .setAngle(Math.random() * 2 * Math.PI)
                     .setX((float) Math.random() * (mMaxX - mMinX) + mMinX)
                     .setY((float) Math.random() * (mMaxY - mMinY) + mMinY)

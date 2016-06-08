@@ -1,19 +1,16 @@
 buildscript {
     repositories {
         jcenter()
-        maven {
-            url 'https://repos.zeroturnaround.com/nexus/content/repositories/zt-public-releases'
-        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0-alpha2'
+        classpath 'com.android.tools.build:gradle:2.1.2'
     }
 }
 
 apply plugin: 'com.android.application'
 
 android {
-    buildToolsVersion '23.0.1'
+    buildToolsVersion '23.0.3'
     compileSdkVersion 23
 
     defaultConfig {

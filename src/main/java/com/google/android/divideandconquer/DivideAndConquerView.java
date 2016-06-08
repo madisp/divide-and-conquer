@@ -296,7 +296,7 @@ public class DivideAndConquerView extends View implements BallEngine.BallEventCa
 
     /** {@inheritDoc} */
     public void onBallHitsLine(long when, Ball ball, AnimatingLine animatingLine) {
-        mCallback.onBallHitsMovingLine(mEngine, ball.getX(), ball.getY());
+        mCallback.onBallHitsMovingLine(mEngine, ball, ball.getX(), ball.getY());
 
         mExplosions.add(
                 new Explosion(

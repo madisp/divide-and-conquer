@@ -82,7 +82,7 @@ public class DivideAndConquerView extends View implements BallEngine.BallEventCa
          * @param x The x coordinate of the ball.
          * @param y The y coordinate of the ball.
          */
-        void onBallHitsMovingLine(BallEngine ballEngine, float x, float y);
+        void onBallHitsMovingLine(BallEngine ballEngine, Ball ball, float x, float y);
 
         /**
          * A line made it to the edges of its region, splitting off a new region.

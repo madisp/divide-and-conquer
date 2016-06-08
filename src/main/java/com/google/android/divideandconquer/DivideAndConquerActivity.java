@@ -143,7 +143,7 @@ public class DivideAndConquerActivity extends Activity
     }
 
     /** {@inheritDoc} */
-    public void onBallHitsMovingLine(final BallEngine ballEngine, float x, float y) {
+    public void onBallHitsMovingLine(final BallEngine ballEngine, final Ball ball, float x, float y) {
         if (--mNumLives == 0) {
             mBallsView.setMode(DivideAndConquerView.Mode.Paused);
 
